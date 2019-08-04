@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564840160966.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F0341A4A",
+    "lastKnownWriteTime" : 7308604914264011776,
+    "last_content_update" : 1564840160966,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "316E097A",
+        "caption" : "ports",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=ports&cache_key=316E097A",
+        "displayedObservations" : 18,
+        "environment" : "",
+        "object" : "ports",
+        "preview" : 0,
+        "totalObservations" : 18,
+        "variables" : 3
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

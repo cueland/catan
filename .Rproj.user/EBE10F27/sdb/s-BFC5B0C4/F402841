@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564840510881.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "F402841",
+    "lastKnownWriteTime" : 7019269531503689734,
+    "last_content_update" : 1564840510881,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "E41EC778",
+        "caption" : "blue_bags",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=blue_bags&cache_key=E41EC778",
+        "displayedObservations" : 3,
+        "environment" : "",
+        "object" : "blue_bags",
+        "preview" : 0,
+        "totalObservations" : 3,
+        "variables" : 2
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

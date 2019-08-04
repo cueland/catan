@@ -1,0 +1,29 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1564837945297.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EEA02447",
+    "lastKnownWriteTime" : -2708150542213682941,
+    "last_content_update" : 1564837945297,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "9876B103",
+        "caption" : "chits",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=chits&cache_key=9876B103",
+        "displayedObservations" : "18",
+        "environment" : "",
+        "object" : "chits",
+        "preview" : "0",
+        "totalObservations" : "18",
+        "variables" : "3"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_dataframe"
+}

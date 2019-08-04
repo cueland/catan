@@ -1,39 +1,23 @@
-# start clean
-rm(list = ls())
-# Set working directory
-setwd("~/Documents/")
+# setup packages
+library(stringr)
+library(graphics)
+library(tidyverse)
+library(here)
 
-require(stringr)
-require(graphics)
+# call function scripts
+source(here("calc_adj.R"))
 
-# Function to calculate the two adjacent tiles for a given corner
-calc_adj <- function(x) {
-  # axial coordinate, horizontal coordinate, and corner numbered 1-6 starting at upper right corner
-  a1 <- matrix(c(1,0,3,1,1,4,0,1,5,-1,0,6,-1,-1,1,0,-1,2), ncol = 3, byrow = T)
-  a2 <- matrix(c(1,1,5,0,1,6,-1,0,1,-1,-1,2,0,-1,3,1,0,4), ncol = 3, byrow = T)
-  y <- matrix(c(x[1], x[2], x[3],
-         x[1:2]+a1[x[3],1:2], a1[x[3],3],
-         x[1:2]+a2[x[3],1:2], a2[x[3],3]),ncol=3,byrow=T)
-  colnames(y) <- c("ax", "hor", "c")
-  y <- data.frame(y[order(y[,3]),])
-  y$time <- 1:3
-  y$id <- 1
-  y <- reshape(y, idvar = "id", timevar = "time", direction = "wide")
-  y$id <- paste(y[,2:ncol(y)], collapse=",")
-  return(y)
-}
-
-plot_polygon <- function(xx,yy,fill,stroke, strokew) {
-  # create the string to draw an SVG polygon with colors and borders
-  # check if xx and yy have same length
-    if(length(xx) != length(yy)) {
-      stop("XX and YY are different length vectors")
-    }
-  # check 
-  
-  #create array with xx and yy values
-  x <- paste0("<polygon class=\"{fill:#", counter
-}
+# plot_polygon <- function(xx,yy,fill,stroke, strokew) {
+#   # create the string to draw an SVG polygon with colors and borders
+#   # check if xx and yy have same length
+#     if(length(xx) != length(yy)) {
+#       stop("XX and YY are different length vectors")
+#     }
+#   # check 
+#   
+#   #create array with xx and yy values
+#   # x <- paste0("<polygon class=\"{fill:#", counter
+# }
 
 calc_adj(c(0,0,4))
 
@@ -99,6 +83,7 @@ tiles <- data.frame(tile = c(1:19),
                     res = sample(rep(c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"), times=c(3,3,4,4,4,1))),
                     ax = c(2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 1, 0, -1, -1, 0, 1, 0),
                     hor = c(2, 2, 2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 1, 1, 0, -1, -1, 0, 0))
+
 
 tiles$lett[tiles$res != "Desert"] <- as.character(chits$lett)
 tiles <- merge(tiles, chits, by = "lett", all=T, sort = F)

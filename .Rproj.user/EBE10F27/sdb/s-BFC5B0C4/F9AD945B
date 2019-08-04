@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Calculate Adjacent Tiles (calc_adj)\n#'\n#' This function calculates the two adjacent tiles for a given corner\n#' @param love Do you love cats? Defaults to TRUE.\n#' @keywords \n#' @export\n#' @examples\n#' calc_adj(ax, hor, corner)\n#' \n\n# Function to calculate the x,y cartesian coordinates from the hex coords and corner\ncart <- function(ax, hor, corner) {\n  if (corner == 0) {\n    return(c(ax*sqrt(3)-0.5*hor*sqrt(3), 1.5*hor))\n    y <- 2*hor\n  }\n  else {\n    return(c(ax*sqrt(3)-0.5*hor*sqrt(3) + cos(corner*pi/3-pi/6), 1.5*hor+sin(corner*pi/3-pi/6)))\n  }\n}\n\n# function to output an x,y array of coords for the corners of a polygon\ncorns <- function(x) {\n  return(data.frame(xx = (x[1]*sqrt(3)-0.5*x[2]*sqrt(3))+sqrt(3)/2*c(1,0,-1,-1,0,1),\n                    yy = 1.5*x[2]+0.5*c(1,2,1,-1,-2,-1)))\n}\n\ncorns(c(0,0))\n\n#function to find x,y of the center of a hex\ncentfind <- function(x) {\n  # x is an array (ax,hor) of the hexagon in question\n  return(c(x[1]*sqrt(3)-0.5*x[2]*sqrt(3), 1.5*x[2]))\n}\n\n#function to find x,y of a corner\ncornfind <- function(x) {\n  # x is an array (ax,hor,[corner]) of the hexagon corner in question\n  \n  # if corner not specified, assume center, i.e. angle \n  if (length(x) > 3 | length(x) < 2) {\n    stop(paste0(\"Input vector length = \", length(x), \". It should be in the format c(ax,hor,[corner])\"))\n  }\n  else if (length(x) == 2) {\n    warning(\"corner not specified, assuming center.\")\n    x <- c(x,0)\n  }\n  \n  # define the x,y coords of the center\n  center_x <- x[1]*sqrt(3)-0.5*x[2]*sqrt(3)\n  center_y <- 1.5*x[2]\n  \n  # return the center coords + adjustments for the corner\n  return(c(center_x + sqrt(3)/2*c(0,1,0,-1,-1,0,1)[x[3]+1],\n           center_y + 0.5*c(0,1,2,1,-1,-2,-1)[x[3]+1]))\n}\n\ncornfind(c(1,1,3,4,5,5))\n",
+    "created" : 1564914050364.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "4040316107",
+    "id" : "F9AD945B",
+    "lastKnownWriteTime" : 1564919732,
+    "last_content_update" : 1564919732493,
+    "path" : "~/Documents/Projects/catan/cart.R",
+    "project_path" : "cart.R",
+    "properties" : {
+        "source_window_id" : "wu80oncg8qt99",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
