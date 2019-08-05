@@ -1,7 +1,7 @@
 #' Calculate Adjacent Tiles (calc_adj)
 #'
 #' This function calculates the two adjacent tiles for a given corner
-#' @param love Do you love cats? Defaults to TRUE.
+#' @param x A vector with three elements in the format c(ax, hor, corner).
 #' @keywords 
 #' @export
 #' @examples

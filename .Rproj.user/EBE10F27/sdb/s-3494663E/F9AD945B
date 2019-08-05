@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "#' Calculate Cartesian Coordinates of Hex Corners (cart_find)\n#'\n#' This function calculates the x,y coordinates of the center (corner=0), or the\n#' corners of a hex\n#' @param x A vector with two or three elements in the format c(ax, hor, [corner])\n#' @keywords \n#' @export\n#' @examples\n#' cart_find(x)\n#' \n\n#function to find x,y of a corner\ncart_find <- function(x) {\n  # x is an array (ax,hor,[corner]) of the hexagon corner in question\n  \n  # if corner not specified, assume center, i.e. angle \n  if (length(x) > 3 | length(x) < 2) {\n    stop(paste0(\"Input vector length = \", length(x), \". It should be in the format c(ax,hor,[corner])\"))\n  }\n  else if (length(x) == 2) {\n    warning(\"corner not specified, assuming center.\")\n    x <- c(x,0)\n  }\n  \n  # define the x,y coords of the center\n  center_x <- x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3)\n  center_y <- 1.5 * x[2]\n  \n  # use a matrix to define the corners rather than a sin/cos\n  # corn_x[1] corresponds to the hex center, then 2 corresponds to corner 1 and so forth\n  corn_x <- c(0,1,0,-1,-1,0,1)\n  corn_y <- c(0,1,2,1,-1,-2,-1)\n  \n  # return the center coords + adjustments for the corner\n  return(c(center_x + sqrt(3)/2*corn_x[x[3]+1],\n           center_y + 0.5*corn_y[x[3]+1]))\n  \n  # version with sin/cos\n  # if (x[3] == 0) {\n  #   return(x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3), 1.5 * x[2])\n  # }\n  # else {\n  #   return(x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3) + cos(x[3] * pi/3 - pi/6)\n  #          y <- 1.5 * x[2] + sin(x[3] * pi/3 - pi/6)\n  # }\n}",
+    "created" : 1564914050364.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3809234588",
+    "id" : "F9AD945B",
+    "lastKnownWriteTime" : 1564990107,
+    "last_content_update" : 1564990107164,
+    "path" : "~/Documents/Projects/catan/cart.R",
+    "project_path" : "cart.R",
+    "properties" : {
+        "source_window_id" : "wu80oncg8qt99",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

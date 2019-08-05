@@ -3,9 +3,14 @@ library(stringr)
 library(graphics)
 library(tidyverse)
 library(here)
+library(svglite)
+library(gridSVG)
 
 # call function scripts
 source(here("calc_adj.R"))
+source(here("cart.R"))
+source(here("get_res.R"))
+
 
 # plot_polygon <- function(xx,yy,fill,stroke, strokew) {
 #   # create the string to draw an SVG polygon with colors and borders
@@ -19,55 +24,8 @@ source(here("calc_adj.R"))
 #   # x <- paste0("<polygon class=\"{fill:#", counter
 # }
 
-calc_adj(c(0,0,4))
-
-getres <- function(tiles, id) {
-  # parse the id
-  dd <- data.frame(t(matrix(as.integer(str_split(id,",")[[1]]), nrow = 3, byrow = F, dimnames = list(c("ax", "hor", "corner")))))
-  dd <- merge(dd,tiles[c("ax", "hor", "res", "value", "strength")], by = c("ax", "hor"))
-  res <- c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert")
-  # import port data
-  return(list(id = id,
-              tot_prob = sum(dd$strength),
-              res_count = sum(!is.na(dd$res)),
-              uniq_res = length(unique(dd$res)),
-              res = unique(as.character(dd$res)),
-              res_mat = data.frame(res = res,
-                                   strength = unlist(lapply(res, function(x) sum(dd$strength[dd$res==x]))),
-                                   count = unlist(lapply(res, function(x) sum(dd$res==x))))))
-}
-
 id <- paste(c(-1,-1,2,0,0,4,-1,0,6), collapse=",")
 
-# Function to calculate the x,y cartesian coordinates from the hex coords and corner
-cart <- function(ax, hor, corner) {
-  if (corner == 0) {
-    return(c(ax*sqrt(3)-0.5*hor*sqrt(3), 1.5*hor))
-    y <- 2*hor
-  }
-  else {
-    return(c(ax*sqrt(3)-0.5*hor*sqrt(3) + cos(corner*pi/3-pi/6), 1.5*hor+sin(corner*pi/3-pi/6)))
-  }
-}
-
-# function to output an x,y array of coords for the corners of a polygon
-corns <- function(x) {
-  return(data.frame(xx = (x[1]*sqrt(3)-0.5*x[2]*sqrt(3))+sqrt(3)/2*c(1,0,-1,-1,0,1), yy = 1.5*x[2]+0.5*c(1,2,1,-1,-2,-1)))
-}
-
-corns(c(0,0))
-
-#function to find x,y of the center of a hex
-centfind <- function(x) {
-  # x is an array (ax,hor) of the hexagon in question
-  return(c(x[1]*sqrt(3)-0.5*x[2]*sqrt(3), 1.5*x[2]))
-}
-
-#function to find x,y of a corner
-cornfind <- function(x) {
-  # x is an array (ax,hor,corner) of the hexagon corner in question
-  return(c(x[1]*sqrt(3)-0.5*x[2]*sqrt(3)+sqrt(3)/2*x[3], 1.5*x[2]+0.5*x[3]))
-}
 
 # force R to never use scientific notation
 # options("scipen"=100, "digits"=4)
@@ -88,6 +46,7 @@ tiles <- data.frame(tile = c(1:19),
 tiles$lett[tiles$res != "Desert"] <- as.character(chits$lett)
 tiles <- merge(tiles, chits, by = "lett", all=T, sort = F)
 rm(chits)
+# assign Desert strength to 0
 tiles$strength[tiles$res == "Desert"] <- 0
 
 # reorder the tiles in original random order (undone by merge)
@@ -118,7 +77,7 @@ corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), tiles[,c("tile
 cornerids <- unique(do.call(rbind, apply(corners[,c("ax", "hor", "corner")], 1, FUN = calc_adj))$id)
 
 # 
-corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) getres(tiles, x))))
+corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) get_res(tiles, x))))
 for (n in c("id", "tot_prob", "res_count", "uniq_res")) {
   corners[,n] <- unlist(corners[,n])
 }
@@ -131,7 +90,7 @@ rm(ports)
 corners <- corners[order(corners$tot_prob, corners$uniq_res, decreasing=T),]
 
 # calculate x,y position for corners
-corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cornfind))
+corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cart_find))
 colnames(corners1) <- c("xx", "yy")
 corners <- cbind(corners, corners1)
 rm(corners1)
@@ -146,13 +105,16 @@ colss$stars <- sapply(colss$strength, function(x){paste0(rep("*",x), collapse=""
 
 colss$desc <- as.expression(paste(colss$res, colss$value, colss$stars, sep="\n"))
 xx <- lapply(colss, function(x){expression(paste(x$res, x$value, x$stars, sep="/n"))})
-x <- split(unlist(lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = centfind)), rep(1:2,19))
+x <- split(unlist(lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = function(x) {cart_find(c(x, 0))})), rep(1:2,19))
 
 dat <- lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = corns)
 dat <- split(c(dat, as.character(colss$hex)), rep(1:19,2))
 
 
-plot(-5:5,-5:5, type='n')
+plot(-5:5,-5:5, type='n', axes=F, xlab="", ylab="")
 lapply(dat, function(x){polygon(x[[1]]$xx, x[[1]]$yy, col = x[[2]], border = "black")})
 text(x[[1]], x[[2]], labels = lapply(colss$desc, function(x) paste0(x)))
 # symbols(corners$xx, corners$yy, circles = rep(1,length(corners$xx)))
+
+svglite(file = "Rplots.svg", width = 10, height = 8, bg = "white",
+        pointsize = 12)
