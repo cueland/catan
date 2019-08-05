@@ -107,7 +107,7 @@ colss$desc <- as.expression(paste(colss$res, colss$value, colss$stars, sep="\n")
 xx <- lapply(colss, function(x){expression(paste(x$res, x$value, x$stars, sep="/n"))})
 x <- split(unlist(lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = function(x) {cart_find(c(x, 0))})), rep(1:2,19))
 
-dat <- lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = corns)
+dat <- lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = get_corners)
 dat <- split(c(dat, as.character(colss$hex)), rep(1:19,2))
 
 
