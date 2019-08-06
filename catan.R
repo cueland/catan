@@ -10,7 +10,7 @@ source(here("calc_adj.R"))
 source(here("gen_tiles.R"))
 source(here("gen_ports.R"))
 source(here("calc_corners.R"))
-source(here("svg_element.R"))
+source(here("catan_svg.R"))
 
 # Use the random tile generator to generate a randomized catan board
 tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1))
@@ -21,10 +21,9 @@ ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F)
 # Join the tile and port data to calculate information for each corner of the game
 corners <- calc_corners(tiles, ports)
 
+# write the SVG code to a file
+write(catan_svg(tiles, corners, width = 900), file = "polygons.svg")
 
-hex_colors <- data.frame(res = c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"),
-                    hex = c("#945337", "#b8a2c7","#c7e0ca", "#fff9b9", "#7aa86b", "#cccccc"),
-                    stringsAsFactors = F)
 
 tiles$ord <- 1:nrow(tiles)
 colss <- merge(tiles, hex_colors, by = "res", all.x= T)
