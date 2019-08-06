@@ -2,7 +2,7 @@
 #'
 #' This function calculates the x,y coordinates of the center (corner=0), or the
 #' corners of a hex
-#' @param x A vector with two or three elements in the format c(ax, hor, [corner])
+#' @param x A vector with two or three elements in the format c(axx, hor, [corner])
 #' @keywords 
 #' @export
 #' @examples
@@ -11,11 +11,11 @@
 
 #function to find x,y of a corner
 cart_find <- function(x) {
-  # x is an array (ax,hor,[corner]) of the hexagon corner in question
+  # x is an array (axx,hor,[corner]) of the hexagon corner in question
   
   # if corner not specified, assume center, i.e. angle 
   if (length(x) > 3 | length(x) < 2) {
-    stop(paste0("Input vector length = ", length(x), ". It should be in the format c(ax,hor,[corner])"))
+    stop(paste0("Input vector length = ", length(x), ". It should be in the format c(axx,hor,[corner])"))
   }
   else if (length(x) == 2) {
     warning("corner not specified, assuming center.")
@@ -23,7 +23,7 @@ cart_find <- function(x) {
   }
   
   # define the x,y coords of the center
-  center_x <- x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3)
+  center_x <- x[1] * sqrt(3) + 0.5 * x[2] * sqrt(3)
   center_y <- 1.5 * x[2]
   
   # use a matrix to define the corners rather than a sin/cos
@@ -37,10 +37,10 @@ cart_find <- function(x) {
   
   # version with sin/cos
   # if (x[3] == 0) {
-  #   return(x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3), 1.5 * x[2])
+  #   return(x[1] * sqrt(3) + 0.5 * x[2] * sqrt(3), 1.5 * x[2])
   # }
   # else {
-  #   return(x[1] * sqrt(3) - 0.5 * x[2] * sqrt(3) + cos(x[3] * pi/3 - pi/6)
+  #   return(x[1] * sqrt(3) + 0.5 * x[2] * sqrt(3) + cos(x[3] * pi/3 - pi/6)
   #          y <- 1.5 * x[2] + sin(x[3] * pi/3 - pi/6)
   # }
 }

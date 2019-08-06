@@ -19,13 +19,13 @@ source(here("svg_element.R"))
 (tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1)))
 
 # Use the random port generator to generate a set of randomized ports
-(ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F))
+(ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F))
 
 # create a data frame to house all the relevant corners of the game
-corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), tiles[,c("tile", "ax", "hor")], by = "tile", all.x = T)
+corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), tiles[,c("tile", "axx", "hor")], by = "tile", all.x = T)
 
 # get relevant corner codes with corner id's, then strip off duplicates
-cornerids <- unique(do.call(rbind, apply(corners[,c("ax", "hor", "corner")], 1, FUN = calc_adj))$id)
+cornerids <- unique(do.call(rbind, apply(corners[,c("axx", "hor", "corner")], 1, FUN = calc_adj))$id)
 
 # 
 corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) get_res(tiles, x))))
@@ -59,16 +59,16 @@ colss$desc <- as.expression(paste(colss$res, colss$value, colss$stars, sep="\n")
 xx <- lapply(colss, function(x){expression(paste(x$res, x$value, x$stars, sep="/n"))})
 
 # generate the center x,y coordinates for each hex
-hex_coords <- matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))),
+hex_coords <- matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))),
                                    FUN = function(x) {cart_find(c(x, 0))})),
                      ncol = 2, byrow = T)
 # transform the coordinates to account for SVG format
-hex_coords_SVG <- t(c(450, 450) + t(hex_coords) * c(100, -100))
+hex_coords_SVG <- 450 + hex_coords * 100
 
 # generate the x,y coordinates of each corner for every tile
-corner_coords <- lapply(as.list(data.frame(t(tiles[,c("ax", "hor")]))), FUN = function(x) get_corners(x))
+corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) get_corners(x))
 # transform the coordinates to account for SVG format
-corner_coords_SVG <- lapply(corner_coords, FUN = function(x) {t(c(450, 450) + (t(x) * c(100, -100)))})
+corner_coords_SVG <- lapply(corner_coords, FUN = function(x) {450 + x * 100})
 
 # ---------------------------------------| Create the SVG file |--------------------------------------------- #
 
@@ -103,7 +103,7 @@ port_corners <- corners[!is.na(corners$port),c("port", "xx", "yy")]
 port_corners <- merge(port_corners, colhx, by.x = "port", by.y = "res", all.x = T)
 port_corners$hex[port_corners$port == "Random"] <- "#c5c5c5"
 port_corners$xx <- port_corners$xx * 100 + 450
-port_corners$yy <- port_corners$yy * -100 + 450
+port_corners$yy <- port_corners$yy * 100 + 450
 
 ports_svg <- unlist(apply(port_corners, 1, FUN = function(x) {
   paste0("<circle cx='",x[2] , "' cy='",x[3] , "' r='20' stroke='black' stroke-width='2' fill='", x[4], "' />")
@@ -121,6 +121,6 @@ x <- split(c(hex_coords), rep(1:19,2))
 plot_size <- 4.5
 
 plot(-plot_size:plot_size,-plot_size:plot_size, type='n', axes=F, xlab="", ylab="")
-lapply(dat, function(x){polygon(x[[1]][,1], x[[1]][,2], col = x[[2]], border = "black")})
+lapply(dat, function(x){polygon(x[[1]][,1], -x[[1]][,2], col = x[[2]], border = "black")})
 
-text(hex_coords[,1], hex_coords[,2], labels = lapply(colss$desc, function(x) paste0(x)))
+text(hex_coords[,1], -hex_coords[,2], labels = lapply(colss$desc, function(x) paste0(x)))

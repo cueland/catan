@@ -2,12 +2,12 @@
 #'
 #' This function calculates the adjacent resources for a given corner id or corner identifier
 #' @param tiles A dataframe with a list axial coordinates and their corresponding resources
-#' @param id A string with nine coordinates ax,hor,corner for the 3 tiles corresponing to one corner
-#' @param x A vector with three elements in the format c(ax, hor, corner).
+#' @param id A string with nine coordinates axx,hor,corner for the 3 tiles corresponing to one corner
+#' @param x A vector with three elements in the format c(axx, hor, corner).
 #' @keywords
 #' @export
 #' @examples
-#' get_res(tiles, id="0,-3,2,1,-2,4,0,-2,6")
+#' get_res(tiles, id="0,0,1,1,0,3,0,1,5")
 #' get_res(tiles, coords=c(1,-2,4))
 #' 
 
@@ -21,8 +21,8 @@ get_res <- function(tiles, id=NULL, coords=NULL) {
     }
   }
   # parse the id
-  dd <- data.frame(t(matrix(as.integer(str_split(id,",")[[1]]), nrow = 3, byrow = F, dimnames = list(c("ax", "hor", "corner")))))
-  dd <- merge(dd,tiles[c("ax", "hor", "res", "value", "strength")], by = c("ax", "hor"))
+  dd <- data.frame(t(matrix(as.integer(str_split(id,",")[[1]]), nrow = 3, byrow = F, dimnames = list(c("axx", "hor", "corner")))))
+  dd <- merge(dd,tiles[c("axx", "hor", "res", "value", "strength")], by = c("axx", "hor"))
   res <- c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert")
   # import port data
   return(list(id = id,

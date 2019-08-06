@@ -1,19 +1,32 @@
 #' Calculate Adjacent Tiles (calc_adj)
 #'
 #' This function calculates the two adjacent tiles for a given corner
-#' @param x A vector with three elements in the format c(ax, hor, corner).
+#' @param x A vector with three elements in the format c(axx, hor, corner).
 #' @keywords 
 #' @export
 #' @examples
-#' calc_adj(ax, hor, corner)
+#' calc_adj(axx, hor, corner)
 #' 
 
 calc_adj <- function(x) {
   # axial coordinate, horizontal coordinate, and corner numbered 1-6 starting at upper right corner
   
   # set up the matrices used to calculate the two (a1,a2) adjacent tiles
-  a1 <- matrix(c(1,0,3,1,1,4,0,1,5,-1,0,6,-1,-1,1,0,-1,2), ncol = 3, byrow = T)
-  a2 <- matrix(c(1,1,5,0,1,6,-1,0,1,-1,-1,2,0,-1,3,1,0,4), ncol = 3, byrow = T)
+  # a1 <- matrix(c(1,0,3,1,-1,4,0,-1,5,-1,0,6,-1,1,1,0,1,2), ncol = 3, byrow = T)
+  # a2 <- matrix(c(1,-1,5,0,-1,6,-1,0,1,-1,1,2,0,1,3,1,0,4), ncol = 3, byrow = T)
+  a1 <- matrix(c(1, 0, 3,
+                 0, 1, 4,
+                 -1, 1, 5,
+                 -1, 0, 6,
+                 0, -1, 1,
+                 1, -1, 2), ncol = 3, byrow = T)
+  
+  a2 <- matrix(c(0, 1, 5,
+                 -1, 1, 6,
+                 -1, 0, 1,
+                 0, -1, 2,
+                 1, -1, 3,
+                 1, 0, 4), ncol = 3, byrow = T)
   
   # calculate a matrix of the 3 axial coordinates with their respective corners
   y <- matrix(c(x,
@@ -21,7 +34,7 @@ calc_adj <- function(x) {
                 x[1:2]+a2[x[3],1:2], a2[x[3],3]),ncol=3,byrow=T)
   
   # set the column names for the array
-  colnames(y) <- c("ax", "hor", "c")
+  colnames(y) <- c("axx", "hor", "c")
   
   # order the corner coordinates by the corners, either 1,3,5 or 2,4,6
   y <- data.frame(y[order(y[,3]),])
