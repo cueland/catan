@@ -30,9 +30,7 @@ gen_ports <- function(p_offset = sample(0:5, 1), port_random = F, all = F) {
   ports$tile <- (ports$tile.orig+2*p_offset-1)%%12+1
   ports$corner <- (6+ports$corner.orig-p_offset-1)%%6+1
   
-  tiles <- data.frame(tile = c(1:19),
-                      axx = c(2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 1, 0, -1, -1, 0, 1, 0),
-                      hor = c(-2, -2, -2, -1, 0, 1, 2, 2, 2, 1, 0, -1, -1, -1, 0, 1, 1, 0, 0))
+  tiles <- gen_tiles()[,c("tile", "axx", "hor")]
   
   # convert tile number to tile coords
   ports <- merge(ports, tiles, by = "tile", all.x=T)

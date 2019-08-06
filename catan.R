@@ -1,50 +1,26 @@
 # setup packages
 library(stringr)
 library(graphics)
-library(tidyverse)
 library(here)
-library(svglite)
-library(gridSVG)
 
 # call function scripts
+source(here("cart.R"))
+source(here("get_res.R"))
 source(here("calc_adj.R"))
 source(here("gen_tiles.R"))
 source(here("gen_ports.R"))
-source(here("gen_corners.R"))
-source(here("cart.R"))
-source(here("get_res.R"))
+source(here("calc_corners.R"))
 source(here("svg_element.R"))
 
 # Use the random tile generator to generate a randomized catan board
-(tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1)))
+tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1))
 
 # Use the random port generator to generate a set of randomized ports
-(ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F))
+ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F)
 
-# create a data frame to house all the relevant corners of the game
-corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), tiles[,c("tile", "axx", "hor")], by = "tile", all.x = T)
+# Join the tile and port data to calculate information for each corner of the game
+corners <- calc_corners(tiles, ports)
 
-# get relevant corner codes with corner id's, then strip off duplicates
-cornerids <- unique(do.call(rbind, apply(corners[,c("axx", "hor", "corner")], 1, FUN = calc_adj))$id)
-
-# 
-corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) get_res(tiles, x))))
-for (n in c("id", "tot_prob", "res_count", "uniq_res")) {
-  corners[,n] <- unlist(corners[,n])
-}
-
-# merge in port data
-corners <- merge(corners, ports[,c("id", "port")], by = "id", all.x = TRUE)
-rm(ports)
-
-# order decreasing by best prob and then unique resources
-corners <- corners[order(corners$tot_prob, corners$uniq_res, decreasing=T),]
-
-# calculate x,y position for corners
-corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cart))
-colnames(corners1) <- c("xx", "yy")
-corners <- cbind(corners, corners1)
-rm(corners1)
 
 colhx <- data.frame(res = c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"),
                     hex = c("#945337", "#b8a2c7","#c7e0ca", "#fff9b9", "#7aa86b", "#cccccc"),

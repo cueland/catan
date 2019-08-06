@@ -10,9 +10,9 @@
 #' get_res(tiles, id="0,-3,2,1,-2,4,0,-2,6")
 #' get_res(tiles, coords=c(1,-2,4))
 #' 
- setClass("svg_element", slots = list(tag = "character")
-
-          
-svg_element <- function(type, attributes) {
-  x <- paste0("<",type,"")
-}
+#  setClass("svg_element", slots = list(tag = "character")
+# 
+#           
+# svg_element <- function(type, attributes) {
+#   x <- paste0("<",type,"")
+# }

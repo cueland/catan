@@ -1,19 +1,20 @@
 #' Calculate Corner Data (calc_corners)
 #'
-#' This function generates a randomized set of ports for the catan board.
-#' @param ord A vector of length 18 that sets the order of the non-desert tiles
-#' @param desert An integer between 1 and 19 for the location of the desert
+#' This function calculates corner data from tile and port input.
+#' The output is a complex data frame with a plethora of information for each corner.
+#' @param tiles A dataframe with tile data
+#' @param ports A dataframe with id and port data
 #' @keywords
 #' @export
 #' @examples
-#' gen_tiles()
-#' gen_tiles(sample(1:18), sample(1:19,1))
-#' gen_tiles(desert = sample(1:19,1))
+#' gen_tiles(tiles, ports)
 #' 
 
 calc_corners <- function(tiles, ports) {
   # create a data frame to house all the relevant corners of the game
-  corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), gen_tiles()[,c("tile", "axx", "hor")], by = "tile", all.x = T)
+  corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6),
+                   tiles[,c("tile", "axx", "hor")],
+                   by = "tile", all.x = T)
   
   # get relevant corner codes with corner id's, then strip off duplicates
   cornerids <- unique(do.call(rbind, apply(corners[,c("axx", "hor", "corner")], 1, FUN = calc_adj))$id)

@@ -1,7 +1,7 @@
 #' Get Resources (get_res)
 #'
 #' This function calculates the adjacent resources for a given corner id or corner identifier
-#' @param tiles A dataframe with a list axial coordinates and their corresponding resources
+#' @param tiles A dataframe with axial coordinates and their corresponding resources
 #' @param id A string with nine coordinates axx,hor,corner for the 3 tiles corresponing to one corner
 #' @param x A vector with three elements in the format c(axx, hor, corner).
 #' @keywords
