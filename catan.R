@@ -7,41 +7,15 @@ library(svglite)
 library(gridSVG)
 
 # call function scripts
+source(here("gen_tiles.R"))
 source(here("calc_adj.R"))
 source(here("cart.R"))
 source(here("get_res.R"))
 source(here("get_corners.R"))
 source(here("svg_element.R"))
 
-
-id <- paste(c(-1,-1,2,0,0,4,-1,0,6), collapse=",")
-
-
-# force R to never use scientific notation
-# options("scipen"=100, "digits"=4)
-
-# Input the order of number chits and their corresponding strengths
-chits <- data.frame(lett = LETTERS[1:18], value = c(5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11))
-
-# calculate dice probabilities
-chits$strength <- 6-abs(7-chits$value)
-
-# Randomize the resource types, match with the coordinates(ax, hor) of the spiral sequence
-tiles <- data.frame(tile = c(1:19),
-                    res = sample(rep(c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"), times=c(3,3,4,4,4,1))),
-                    ax = c(2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 2, 2, 1, 0, -1, -1, 0, 1, 0),
-                    hor = c(2, 2, 2, 1, 0, -1, -2, -2, -2, -1, 0, 1, 1, 1, 0, -1, -1, 0, 0))
-
-
-tiles$lett[tiles$res != "Desert"] <- as.character(chits$lett)
-tiles <- merge(tiles, chits, by = "lett", all=T, sort = F)
-rm(chits)
-# assign Desert strength to 0
-tiles$strength[tiles$res == "Desert"] <- 0
-
-# reorder the tiles in original random order (undone by merge)
-tiles <- tiles[order(tiles$tile), ]
-row.names(tiles) <- NULL
+# Use the random tile generator to generate a randomized catan board
+(tiles <- gen_tiles())
 
 # define the ports (to randomize, add sample to the port types)
 ports <- data.frame(tile.orig = c(1, 2, 3, 3, 4, 4, 6, 6, 7, 7, 8, 8, 10, 10, 11, 11, 12, 12),
