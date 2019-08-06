@@ -38,5 +38,6 @@ calc_corners <- function(tiles, ports) {
   # add colnames
   colnames(corners1) <- c("xx", "yy")
   # bind x,y data to corner data
+  
   return(cbind(corners, corners1))
 }

@@ -22,29 +22,18 @@ ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F)
 corners <- calc_corners(tiles, ports)
 
 
-colhx <- data.frame(res = c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"),
+hex_colors <- data.frame(res = c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"),
                     hex = c("#945337", "#b8a2c7","#c7e0ca", "#fff9b9", "#7aa86b", "#cccccc"),
                     stringsAsFactors = F)
+
 tiles$ord <- 1:nrow(tiles)
-colss <- merge(tiles, colhx, by = "res", all.x= T)
+colss <- merge(tiles, hex_colors, by = "res", all.x= T)
 colss <- colss[order(colss$ord),]
-colss$strength[is.na(colss$strength)] <- 0
 colss$stars <- sapply(colss$strength, function(x){paste0(rep("*",x), collapse="")})
-
 colss$desc <- as.expression(paste(colss$res, colss$value, colss$stars, sep="\n"))
-xx <- lapply(colss, function(x){expression(paste(x$res, x$value, x$stars, sep="/n"))})
 
-# generate the center x,y coordinates for each hex
-hex_coords <- matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))),
-                                   FUN = function(x) {cart(c(x, 0))})),
-                     ncol = 2, byrow = T)
-# transform the coordinates to account for SVG format
-hex_coords_SVG <- 450 + hex_coords * 100
-
-# generate the x,y coordinates of each corner for every tile
-corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) cart(x))
-# transform the coordinates to account for SVG format
-corner_coords_SVG <- lapply(corner_coords, FUN = function(x) {450 + x * 100})
+# # transform the coordinates to account for SVG format
+corner_coords_SVG <- lapply(tiles$corner_coords, FUN = function(x) {450 + x * 100})
 
 # ---------------------------------------| Create the SVG file |--------------------------------------------- #
 
@@ -73,10 +62,10 @@ texxt <- unlist(mapply(FUN = function(x, y, res, val, sth) {
          "<tspan x='0' y='0em'>", val, "</tspan>",
          "<tspan x='0' y='1em'>", paste0(rep("*", sth), collapse = ""), "</tspan>",
          "\n</text>", sep = "")
-      }, hex_coords_SVG[,1], hex_coords_SVG[,2], tiles$res, tiles$value, tiles$strength))
+      }, 450 + tiles$xx * 100, 450 + tiles$yy * 100, tiles$res, tiles$value, tiles$strength))
 
 port_corners <- corners[!is.na(corners$port),c("port", "xx", "yy")]
-port_corners <- merge(port_corners, colhx, by.x = "port", by.y = "res", all.x = T)
+port_corners <- merge(port_corners, hex_colors, by.x = "port", by.y = "res", all.x = T)
 port_corners$hex[port_corners$port == "Random"] <- "#c5c5c5"
 port_corners$xx <- port_corners$xx * 100 + 450
 port_corners$yy <- port_corners$yy * 100 + 450
@@ -92,11 +81,11 @@ write(c(header,pgons,texxt, ports_svg, footer), file = "polygons.svg")
 
 # ---------------------------------------| Plot using R |--------------------------------------------- #
 
-dat <- split(c(corner_coords, colss$hex), rep(1:19,2))
-x <- split(c(hex_coords), rep(1:19,2))
+dat <- split(c(tiles$corner_coords, colss$hex), rep(1:19,2))
+
 plot_size <- 4.5
 
 plot(-plot_size:plot_size,-plot_size:plot_size, type='n', axes=F, xlab="", ylab="")
 lapply(dat, function(x){polygon(x[[1]][,1], -x[[1]][,2], col = x[[2]], border = "black")})
 
-text(hex_coords[,1], -hex_coords[,2], labels = lapply(colss$desc, function(x) paste0(x)))
+text(tiles$xx, -tiles$yy, labels = lapply(colss$desc, function(x) paste0(x)))

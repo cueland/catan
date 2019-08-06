@@ -34,5 +34,18 @@ gen_tiles <- function(ord = sample(1:18), desert = sample(1:19,1)) {
   # reorder the tiles in original random order (undone by merge)
   tiles <- tiles[order(tiles$tile), ]
   row.names(tiles) <- NULL
+  
+  # find and insert the cartesian coordinates for each hex center
+  hex_coords <- data.frame(matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))),
+                                                FUN = function(x) {cart(c(x, 0))})),
+                                  ncol = 2, byrow = T))
+  # name the cart coord columns
+  names(hex_coords) <- c("xx", "yy")
+  #incorporate into the output data-frame
+  tiles <- cbind(tiles, hex_coords)
+  
+  # generate an array of x,y coordinates for each corner of every tile (input as a list of these coordinates)
+  tiles$corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) cart(x))
+  
   return(tiles)
 }
