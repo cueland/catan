@@ -7,12 +7,12 @@ library(svglite)
 library(gridSVG)
 
 # call function scripts
+source(here("calc_adj.R"))
 source(here("gen_tiles.R"))
 source(here("gen_ports.R"))
-source(here("calc_adj.R"))
+source(here("gen_corners.R"))
 source(here("cart.R"))
 source(here("get_res.R"))
-source(here("get_corners.R"))
 source(here("svg_element.R"))
 
 # Use the random tile generator to generate a randomized catan board
@@ -41,7 +41,7 @@ rm(ports)
 corners <- corners[order(corners$tot_prob, corners$uniq_res, decreasing=T),]
 
 # calculate x,y position for corners
-corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cart_find))
+corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cart))
 colnames(corners1) <- c("xx", "yy")
 corners <- cbind(corners, corners1)
 rm(corners1)
@@ -60,13 +60,13 @@ xx <- lapply(colss, function(x){expression(paste(x$res, x$value, x$stars, sep="/
 
 # generate the center x,y coordinates for each hex
 hex_coords <- matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))),
-                                   FUN = function(x) {cart_find(c(x, 0))})),
+                                   FUN = function(x) {cart(c(x, 0))})),
                      ncol = 2, byrow = T)
 # transform the coordinates to account for SVG format
 hex_coords_SVG <- 450 + hex_coords * 100
 
 # generate the x,y coordinates of each corner for every tile
-corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) get_corners(x))
+corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) cart(x))
 # transform the coordinates to account for SVG format
 corner_coords_SVG <- lapply(corner_coords, FUN = function(x) {450 + x * 100})
 
