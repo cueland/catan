@@ -8,6 +8,7 @@ library(gridSVG)
 
 # call function scripts
 source(here("gen_tiles.R"))
+source(here("gen_ports.R"))
 source(here("calc_adj.R"))
 source(here("cart.R"))
 source(here("get_res.R"))
@@ -15,24 +16,10 @@ source(here("get_corners.R"))
 source(here("svg_element.R"))
 
 # Use the random tile generator to generate a randomized catan board
-(tiles <- gen_tiles())
+(tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1)))
 
-# define the ports (to randomize, add sample to the port types)
-ports <- data.frame(tile.orig = c(1, 2, 3, 3, 4, 4, 6, 6, 7, 7, 8, 8, 10, 10, 11, 11, 12, 12),
-                    corner.orig = c(3, 2, 2, 3, 3, 4, 3, 4, 4, 5, 5, 6, 5, 6, 6, 1, 1, 2),
-                    port = rep(c("Sheep", "Random", "Ore", "Wheat", "Random", "Wood", "Brick", "Random", "Random"),
-                               times = rep(2,9)))
-
-# randomize the offset for the ports
-p_offset <- sample(0:5, 1) # can orient the board 6 different ways
-ports$tile <- (ports$tile.orig+2*p_offset-1)%%12+1
-ports$corner <- (ports$corner.orig+p_offset-1)%%6+1
-
-# convert tile number to tile coords
-ports <- merge(ports, tiles[,c("tile", "ax", "hor")], by = "tile", all.x=T)
-
-# add unique id to each port corner
-ports$id <- do.call(rbind, apply(ports[,c("ax", "hor", "corner")], 1, FUN = calc_adj))$id
+# Use the random port generator to generate a set of randomized ports
+(ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F))
 
 # create a data frame to house all the relevant corners of the game
 corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6), tiles[,c("tile", "ax", "hor")], by = "tile", all.x = T)
@@ -112,10 +99,20 @@ texxt <- unlist(mapply(FUN = function(x, y, res, val, sth) {
          "\n</text>", sep = "")
       }, hex_coords_SVG[,1], hex_coords_SVG[,2], tiles$res, tiles$value, tiles$strength))
 
+port_corners <- corners[!is.na(corners$port),c("port", "xx", "yy")]
+port_corners <- merge(port_corners, colhx, by.x = "port", by.y = "res", all.x = T)
+port_corners$hex[port_corners$port == "Random"] <- "#c5c5c5"
+port_corners$xx <- port_corners$xx * 100 + 450
+port_corners$yy <- port_corners$yy * -100 + 450
+
+ports_svg <- unlist(apply(port_corners, 1, FUN = function(x) {
+  paste0("<circle cx='",x[2] , "' cy='",x[3] , "' r='20' stroke='black' stroke-width='2' fill='", x[4], "' />")
+}))
+
 footer <- "</svg>"
 
 # write the SVG code to a file
-write(c(header,pgons,texxt, footer), file = "polygons.svg")
+write(c(header,pgons,texxt, ports_svg, footer), file = "polygons.svg")
 
 # ---------------------------------------| Plot using R |--------------------------------------------- #
 
