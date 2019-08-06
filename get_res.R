@@ -23,14 +23,16 @@ get_res <- function(tiles, id=NULL, coords=NULL) {
   # parse the id
   dd <- data.frame(t(matrix(as.integer(str_split(id,",")[[1]]), nrow = 3, byrow = F, dimnames = list(c("axx", "hor", "corner")))))
   dd <- merge(dd,tiles[c("axx", "hor", "res", "value", "strength")], by = c("axx", "hor"))
-  res <- c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert")
+  valuables <- c("Brick", "Ore", "Sheep", "Wheat", "Wood")
   # import port data
   return(list(id = id,
               tot_prob = sum(dd$strength),
-              res_count = sum(!is.na(dd$res)),
-              uniq_res = length(unique(dd$res)),
-              res = unique(as.character(dd$res)),
-              res_mat = data.frame(res = res,
-                                   strength = unlist(lapply(res, function(x) sum(dd$strength[dd$res==x]))),
-                                   count = unlist(lapply(res, function(x) sum(dd$res==x))))))
+              res_count = sum(dd$res%in%valuables),
+              uniq_res = length(unique(dd$res[dd$res%in%valuables])),
+              res = unique(as.character(dd$res[dd$res%in%valuables])),
+              sea = ifelse(nrow(dd) < 3,1,0),
+              desert = ifelse(sum(dd$res%in%"Desert")>0,1,0),
+              res_mat = data.frame(res = valuables,
+                                   strength = unlist(lapply(valuables, function(x) sum(dd$strength[dd$res==x]))),
+                                   count = unlist(lapply(valuables, function(x) sum(dd$res==x))))))
 }

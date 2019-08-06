@@ -14,6 +14,7 @@ source(here("catan_svg.R"))
 
 # Use the random tile generator to generate a randomized catan board
 tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1))
+# tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:11,1))
 
 # Use the random port generator to generate a set of randomized ports
 ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F)

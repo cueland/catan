@@ -23,7 +23,7 @@ calc_corners <- function(tiles, ports) {
   corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) get_res(tiles, id = x))))
   
   # strip out the list format for some variables
-  for (n in c("id", "tot_prob", "res_count", "uniq_res")) {
+  for (n in c("id", "tot_prob", "res_count", "uniq_res", "sea", "desert")) {
     corners[,n] <- unlist(corners[,n])
   }
   

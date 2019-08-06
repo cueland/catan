@@ -65,6 +65,7 @@ catan_svg <- function(tiles, corners, width = 900) {
            "\n</text>", sep = "")
   }, width/2 + tiles$xx * coord_scale, width/2 + tiles$yy * coord_scale, tiles$res, tiles$value, tiles$strength))
   
+  # plot a circle for each corner that has access to a port
   port_corners <- corners[!is.na(corners$port),c("port", "xx", "yy")]
   port_corners <- merge(port_corners, hex_colors, by.x = "port", by.y = "res", all.x = T)
   port_corners$hex[port_corners$port == "Random"] <- "#c5c5c5"
@@ -75,7 +76,20 @@ catan_svg <- function(tiles, corners, width = 900) {
     paste0("<circle cx='",x[2] , "' cy='",x[3] , "' r='", width/45, "' stroke='black' stroke-width='", width/450, "' fill='", x[4], "' />")
   }))
   
+  # highlight corners with good resources
+  good_corners <- corners[1:10, c("tot_prob", "xx", "yy")]
+  good_corners$xx <- good_corners$xx * coord_scale + width/2
+  good_corners$yy <- good_corners$yy * coord_scale + width/2
+  good_corners$tot_prob <- (good_corners$tot_prob - min(good_corners$tot_prob))/2 + 1
+  good_corners$col <- "#4934eb"
+  good_corners$col[good_corners$tot_prob == max(good_corners$tot_prob)] <- "#eb3467"
+  
+  corners_svg <- unlist(apply(good_corners, 1, FUN = function(x) {
+    paste0("<circle cx='",x[2] , "' cy='",x[3] , "' r='", width / 90 * as.numeric(x[1]),
+           "' stroke='black' stroke-width='", width/450, "' fill='", x[4], "' />")
+  }))
+  
   footer <- "</svg>"
   
-  return(c(header,pgons,texxt, ports_svg, footer))
+  return(c(header,pgons,texxt, ports_svg, corners_svg, footer))
 }
