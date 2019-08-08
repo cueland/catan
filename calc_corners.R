@@ -10,20 +10,43 @@
 #' gen_tiles(tiles, ports)
 #' 
 
-calc_corners <- function(tiles, ports) {
+calc_corners <- function(tiles) {
   # create a data frame to house all the relevant corners of the game
   corners <- merge(expand.grid(tile = 1:nrow(tiles), corner = 1:6),
-                   tiles[,c("tile", "axx", "hor")],
+                   tiles,
                    by = "tile", all.x = T)
   
-  # get relevant corner codes with corner id's, then strip off duplicates
-  cornerids <- unique(do.call(rbind, apply(corners[,c("axx", "hor", "corner")], 1, FUN = calc_adj))$id)
+  # get relevant corner codes with corner id's
+  corners$id <- do.call(rbind, apply(corners[,c("axx", "hor", "corner")], 1, FUN = calc_adj))$id
   
-  # get the adjacent resources for each corner
-  corners <- data.frame(do.call(rbind, lapply(cornerids, function(x) get_res(tiles, id = x))))
+  # order by tile then corner
+  corners <- corners[order(corners$tile, corners$corner),]
   
-  # merge in port data
-  corners <- merge(corners, ports[,c("id", "port")], by = "id", all.x = TRUE)
+  # group corners and then sort by groups
+  corners$group <- as.numeric(factor(corners$id, levels = unique(corners$id)))
+  
+  # clean up ports data - port = resource if corner = side or side-1
+  corners$port <- apply(corners[,c("corner", "port_side", "port_res")], 1, FUN = function(x) {
+    if (!is.na(as.numeric(x[2])) & (x[1] == as.numeric(x[2]) | x[1] == (6+as.numeric(x[2])-2)%%6+1)) {
+      return(x[3])
+    }
+    else {
+      return(NA)
+    }
+  })
+  
+  corners$port_side <- NULL
+  corners$port_res <- NULL
+  
+  # apply port to all members of each corner group
+  group_ports <- aggregate(list(port = corners$port), by = list(group = corners$group), FUN = function(x) x[order(x)][1])
+  corners$port <- NULL
+  corners <- merge(corners, group_ports, by = "group", all.x = T)
+  
+  # get and merge in adjacent resources for each corner
+  corners <- merge(corners,
+                   data.frame(do.call(rbind, lapply(unique(corners$id), function(x) get_res(tiles, id = x)))),
+                   by = "id", all.x = TRUE)
   
   # order decreasing by best prob and then unique resources
   corners <- corners[order(corners$tot_prob, corners$uniq_res, decreasing=T),]

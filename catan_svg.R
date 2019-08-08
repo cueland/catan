@@ -29,6 +29,19 @@ catan_svg <- function(tiles, corners, width = 900) {
   tiles$stars <- sapply(tiles$strength, function(x){paste0(rep("*",x), collapse="")})
   tiles$desc <- as.expression(paste(tiles$res, tiles$value, tiles$stars, sep="\n"))
   
+  # find and insert the cartesian coordinates for each hex center
+  hex_coords <- data.frame(matrix(unlist(lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))),
+                                                FUN = function(x) {cart(c(x, 0))})),
+                                  ncol = 2, byrow = T))
+
+  # name the cart coord columns
+  names(hex_coords) <- c("xx", "yy")
+  #incorporate into the output data-frame
+  tiles <- cbind(tiles, hex_coords)
+
+  # generate an array of x,y coordinates for each corner of every tile (input as a list of these coordinates)
+  tiles$corner_coords <- lapply(as.list(data.frame(t(tiles[,c("axx", "hor")]))), FUN = function(x) cart(x))
+  
   # determine the scale variables
   margin <- .05
   coord_scale <- width/2 * (1-2*margin) / max(abs(unlist(tiles$corner_coords)))

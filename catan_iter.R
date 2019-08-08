@@ -2,7 +2,7 @@
 #'
 #' This function calculates corner data from tile and port input.
 #' The output is a complex data frame with a plethora of information for each corner.
-#' @param tiles A dataframe with tile data
+#' @param n Number of iterations
 #' @param ports A dataframe with id and port data
 #' @keywords
 #' @export
@@ -10,23 +10,22 @@
 #' catan_iter(n)
 #' 
 catan_iter <- function(n) {
-  time <- Sys.time()
-  y <- list()
+  time <- Sys.time() # initialize time
+  y <- list() # initialize
   for (x in 1:n) {
-    ord <- sample(1:18)
+    tile_order <- sample(1:18)
     desert <- sample(1:19,1)
-    p_offset <- sample(0:5, 1)
+    port_offset <- sample(0:5, 1)
+    port_order <- sample(1:9)
+    original <- F
     # Use the random tile generator to generate a randomized catan board
-    tiles <- gen_tiles(ord, desert)
-    # tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:11,1))
+    tiles <- gen_tiles(tile_order, desert, port_offset, port_order, original)
     
-    # # Use the random port generator to generate a set of randomized ports
-    # ports <- gen_ports(p_offset)
-    # 
     # # Join the tile and port data to calculate information for each corner of the game
     # corners <- calc_corners(tiles, ports)
     
-    y[[x]] <- list(ord=ord, desert=desert, p_offset=p_offset,
+    y[[x]] <- list(tile_order=tile_order, desert=desert, port_offset=port_offset,
+                   port_order=port_order, original=original,
                    strength = aggregate(list(strength = tiles$strength),
                                         by = list(res = tiles$res),
                                         FUN = sum)$strength)
