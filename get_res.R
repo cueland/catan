@@ -24,15 +24,18 @@ get_res <- function(tiles, id=NULL, coords=NULL) {
   dd <- data.frame(t(matrix(as.integer(str_split(id,",")[[1]]), nrow = 3, byrow = F, dimnames = list(c("axx", "hor", "corner")))))
   dd <- merge(dd,tiles[c("axx", "hor", "res", "value", "strength")], by = c("axx", "hor"))
   valuables <- c("Brick", "Ore", "Sheep", "Wheat", "Wood")
-  # import port data
-  return(list(id = id,
-              tot_prob = sum(dd$strength),
-              res_count = sum(dd$res%in%valuables),
-              uniq_res = length(unique(dd$res[dd$res%in%valuables])),
-              res = unique(as.character(dd$res[dd$res%in%valuables])),
-              sea = ifelse(nrow(dd) < 3,1,0),
-              desert = ifelse(sum(dd$res%in%"Desert")>0,1,0),
-              res_mat = data.frame(res = valuables,
-                                   strength = unlist(lapply(valuables, function(x) sum(dd$strength[dd$res==x]))),
-                                   count = unlist(lapply(valuables, function(x) sum(dd$res==x))))))
+  res_mat <- data.frame(t(data.frame(row.names = valuables,
+                        strength = unlist(lapply(valuables, function(x) sum(dd$strength[dd$res==x]))),
+                        count = unlist(lapply(valuables, function(x) sum(dd$res==x))))))
+  res_mat$id <- id
+  res_mat$time <- row.names(res_mat)
+  res_mat <- reshape(res_mat, idvar="id", timevar="time", direction = "wide")
+  res_mat$tot_prob <- sum(dd$strength)
+  res_mat$res_count <- sum(dd$res%in%valuables)
+  res_mat$uniq_res <- length(unique(dd$res[dd$res%in%valuables]))
+  # res_mat$res <- unique(as.character(dd$res[dd$res%in%valuables]))
+  res_mat$sea <- ifelse(nrow(dd) < 3,1,0)
+  res_mat$desert <- ifelse(sum(dd$res%in%"Desert")>0,1,0)
+  
+  return(res_mat)
 }

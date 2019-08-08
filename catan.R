@@ -11,6 +11,13 @@ source(here("gen_tiles.R"))
 source(here("gen_ports.R"))
 source(here("calc_corners.R"))
 source(here("catan_svg.R"))
+source(here("catan_iter.R"))
+
+x <- catan_iter(100000)
+y <- do.call(rbind,lapply(x, function(x)x[[4]]))
+colSums(y)
+
+write(x, file = "x.txt")
 
 # Use the random tile generator to generate a randomized catan board
 tiles <- gen_tiles(ord = sample(1:18), desert = sample(1:19,1))
@@ -22,7 +29,7 @@ ports <- gen_ports(p_offset = sample(0:5, 1), port_random = F, all = F)
 # Join the tile and port data to calculate information for each corner of the game
 corners <- calc_corners(tiles, ports)
 
-# write the SVG code to a file
+ # write the SVG code to a file
 write(catan_svg(tiles, corners, width = 1000), file = "polygons.svg")
 
 # ---------------------------------------| Plot using R |--------------------------------------------- #

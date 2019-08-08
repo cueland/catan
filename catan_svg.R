@@ -15,7 +15,7 @@ catan_svg <- function(tiles, corners, width = 900) {
   
   # define the colors that go alongside the board resources
   hex_colors <- data.frame(res = c("Brick", "Ore", "Sheep", "Wheat", "Wood", "Desert"),
-                           hex = c("#945337", "#b8a2c7","#c7e0ca", "#fff9b9", "#7aa86b", "#cccccc"),
+                           hex = c("#C06D4B", "#b8a2c7","#cade81", "#fae787", "#629e6f", "#dddddd"),
                            stringsAsFactors = F)
   
   # create an index to preserve order after the merge
@@ -56,14 +56,34 @@ catan_svg <- function(tiles, corners, width = 900) {
     paste0("<polygon points = '",x, "' style = 'fill:",y,";stroke:#353535;stroke-width:", width/450, "' />")
   }, points, tiles$hex))
   
+  text_plot <- tiles[tiles$res != "Desert",]
+  text_plot$col <- "#000000"
+  text_plot$col[text_plot$value%in%c("6", "8")] <- "#ad0202"
+  
+  # Insert chit circles
+  chit_circles <- unlist(apply(text_plot[,c("xx", "yy")], 1, FUN = function(x) {
+    paste0("<circle cx='",width/2 + x[1] * coord_scale, "' cy='",width/2 + x[2] * coord_scale , "' r='", width/30, "' stroke='black' stroke-width='", width/900, "' fill='#dddddd' />")
+  }))
+  
+
   # create the text in the center of the hexagons
-  texxt <- unlist(mapply(FUN = function(x, y, res, val, sth) {
+  texxt <- unlist(mapply(FUN = function(x, y, res, val, sth, col) {
     paste0("<text dominant-baseline='middle' text-anchor='middle' transform='matrix(1 0 0 1 ",x, " ", y, ")' ",
-           "style='font-family:\"AGaramondPro-Regular\";font-size:", width/30, "px;'>\n<tspan x='0' y='-1em'>", res, "</tspan>",
-           "<tspan x='0' y='0em'>", val, "</tspan>",
-           "<tspan x='0' y='1em'>", paste0(rep("*", sth), collapse = ""), "</tspan>",
+           "style='font-family:\"AGaramondPro-Regular\";font-size:", width/35, "px;",
+           "fill:", col, ";'>\n<tspan x='0' y='-0.3em'>", val, "</tspan>",
+           "<tspan x='0' y='0.7em'>", paste0(rep("*", sth), collapse = ""), "</tspan>",
            "\n</text>", sep = "")
-  }, width/2 + tiles$xx * coord_scale, width/2 + tiles$yy * coord_scale, tiles$res, tiles$value, tiles$strength))
+  }, width/2 + text_plot$xx * coord_scale, width/2 + text_plot$yy * coord_scale, text_plot$res, text_plot$value, text_plot$strength, text_plot$col))
+  
+  
+  # # create the text in the center of the hexagons
+  # texxt <- unlist(mapply(FUN = function(x, y, res, val, sth) {
+  #   paste0("<text dominant-baseline='middle' text-anchor='middle' transform='matrix(1 0 0 1 ",x, " ", y, ")' ",
+  #          "style='font-family:\"AGaramondPro-Regular\";font-size:", width/30, "px;'>\n<tspan x='0' y='-1em'>", res, "</tspan>",
+  #          "<tspan x='0' y='0em'>", val, "</tspan>",
+  #          "<tspan x='0' y='1em'>", paste0(rep("*", sth), collapse = ""), "</tspan>",
+  #          "\n</text>", sep = "")
+  # }, width/2 + tiles$xx * coord_scale, width/2 + tiles$yy * coord_scale, tiles$res, tiles$value, tiles$strength))
   
   # plot a circle for each corner that has access to a port
   port_corners <- corners[!is.na(corners$port),c("port", "xx", "yy")]
@@ -77,12 +97,14 @@ catan_svg <- function(tiles, corners, width = 900) {
   }))
   
   # highlight corners with good resources
-  good_corners <- corners[1:10, c("tot_prob", "xx", "yy")]
+  good_corners <- corners[, c("tot_prob", "xx", "yy")]
   good_corners$xx <- good_corners$xx * coord_scale + width/2
   good_corners$yy <- good_corners$yy * coord_scale + width/2
-  good_corners$tot_prob <- (good_corners$tot_prob - min(good_corners$tot_prob))/2 + 1
-  good_corners$col <- "#4934eb"
+  good_corners$col <- "#cae7fc"
+  good_corners$col[good_corners$tot_prob >= 6] <- "#339de8"
+  good_corners$col[good_corners$tot_prob >= 10] <- "#3360e8"
   good_corners$col[good_corners$tot_prob == max(good_corners$tot_prob)] <- "#eb3467"
+  good_corners$tot_prob <- good_corners$tot_prob^1.5/20
   
   corners_svg <- unlist(apply(good_corners, 1, FUN = function(x) {
     paste0("<circle cx='",x[2] , "' cy='",x[3] , "' r='", width / 90 * as.numeric(x[1]),
@@ -91,5 +113,5 @@ catan_svg <- function(tiles, corners, width = 900) {
   
   footer <- "</svg>"
   
-  return(c(header,pgons,texxt, ports_svg, corners_svg, footer))
+  return(c(header,pgons,chit_circles, texxt, ports_svg, corners_svg, footer))
 }
