@@ -49,7 +49,7 @@ calc_corners <- function(tiles) {
                    by = "id", all.x = TRUE)
   
   # order decreasing by best prob and then unique resources
-  corners <- corners[order(corners$tot_prob, corners$uniq_res, decreasing=T),]
+  corners <- corners[order(corners$tot_prob, corners$uniq_res, -corners$corner, decreasing = T),]
   
   # calculate x,y position for corners using the first set of axial coordinates / corner
   corners1 <- t(apply(t(sapply(str_split(corners$id, ","), FUN = as.integer))[,1:3], 1, FUN = cart))
